@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  role      String
+  fullname  String
+  blogs     Blog[]
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Blog {
+  id            Int      @id @default(autoincrement())
+  title         String
+  content       String   @db.Text
+  featuredImage String?
+  slug          String   @unique
+  category      String
+  readingTime   String
+  description   String
+  authorId      Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  author        Admin    @relation(fields: [authorId], references: [id])
+}
+
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Waitlist {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  firstName   String
+  lastName    String
+  phoneNumber String
+  createdAt   DateTime @default(now())
+}
+
+model Downloads {
+  id        Int      @id @default(autoincrement())
+  email     String  
+  firstName String
+  lastName  String
+  createdAt DateTime @default(now())
+}
