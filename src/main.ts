@@ -1,76 +1,64 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { AllExceptionsFilter } from './common/filters/http-exception.filter';
-import { ValidationPipe } from '@nestjs/common';
-import fileUpload from 'express-fileupload';
-import rateLimit from 'express-rate-limit';
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import { AllExceptionsFilter } from "./common/filters/http-exception.filter";
+import rateLimit from "express-rate-limit";
+import fileUpload from "express-fileupload";
+import { ValidationPipe } from "@nestjs/common";
+import helmet from "helmet";
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // CORS Configuration
+  app.use(helmet());
+
   app.enableCors({
     origin: [
-      'http://localhost:5173',      // Vite default dev server
-      'http://localhost:5174',      // Alternative dev port
-      'http://localhost:4173',      // Vite preview
-      'https://yourdomain.com',     // Production domain
-      'https://www.yourdomain.com', // Production www domain
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:4173',
+      'https://optimarzproperties.com',
+      'https://www.optimarzproperties.com',
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'X-Requested-With',
-      'Accept',
-      'Origin',
-    ],
-    credentials: true, 
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+    credentials: true,
     optionsSuccessStatus: 200,
   });
 
-
-  // Set global API prefix (all routes will be prefixed with /api/v1)
   app.setGlobalPrefix('api/v1');
-
-  // Global exception filter
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  // Rate limiting
-  const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100,
-    message: {
-      statusCode: 429,
-      error: 'Too Many Requests',
-      message: 'Too many requests from this IP, please try again later.',
-    },
-    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-  });
+  // Strict limiter for auth routes
+  // app.use('/api/v1', rateLimit({
+  //   windowMs: 15 * 60 * 1000,
+  //   max: 10,
+  //   message: { statusCode: 429, message: 'Too many login attempts' }
+  // }));
 
-  // Apply rate limiting to all requests
-  app.use(limiter);
+  // General limiter
+  app.use(rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 300,
+    standardHeaders: true,
+    legacyHeaders: false,
+  }));
 
-  // File upload middleware
   app.use(fileUpload({
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    limits: { fileSize: 5 * 1024 * 1024 },
     abortOnLimit: true,
     createParentPath: true,
-    useTempFiles: false, // Use memory storage (faster)
+    useTempFiles: false,
     safeFileNames: true,
     preserveExtension: true,
   }));
 
-  // Global validation pipe
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+  }));
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT || 3000, '0.0.0.0');
 }
 bootstrap();
