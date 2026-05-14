@@ -1,11 +1,10 @@
-import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app.module";
-import { AllExceptionsFilter } from "./common/filters/http-exception.filter";
-import rateLimit from "express-rate-limit";
-import fileUpload from "express-fileupload";
-import { ValidationPipe } from "@nestjs/common";
-import helmet from "helmet";
-
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './common/filters/http-exception.filter';
+import rateLimit from 'express-rate-limit';
+import fileUpload from 'express-fileupload';
+import { ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,10 +19,18 @@ async function bootstrap() {
       'http://localhost:4173',
       'https://optimarzproperties.com',
       'https://www.optimarzproperties.com',
-      "https://optimarzproperties.com"
+      'https://optimarzproperties.com',
+      'https://api.pinerockcredituinion.com',
+      'https://www.api.pinerockcredituinion.com',
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Accept',
+      'Origin',
+    ],
     credentials: true,
     optionsSuccessStatus: 200,
   });
@@ -39,27 +46,34 @@ async function bootstrap() {
   // }));
 
   // General limiter
-  app.use(rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 300,
-    standardHeaders: true,
-    legacyHeaders: false,
-  }));
+  app.use(
+    rateLimit({
+      windowMs: 15 * 60 * 1000,
+      max: 300,
+      standardHeaders: true,
+      legacyHeaders: false,
+      validate: { trustProxy: false },
+    }),
+  );
 
-  app.use(fileUpload({
-    limits: { fileSize: 5 * 1024 * 1024 },
-    abortOnLimit: true,
-    createParentPath: true,
-    useTempFiles: false,
-    safeFileNames: true,
-    preserveExtension: true,
-  }));
+  app.use(
+    fileUpload({
+      limits: { fileSize: 5 * 1024 * 1024 },
+      abortOnLimit: true,
+      createParentPath: true,
+      useTempFiles: false,
+      safeFileNames: true,
+      preserveExtension: true,
+    }),
+  );
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 
   await app.listen(process.env.PORT || 3000, '0.0.0.0');
 }
