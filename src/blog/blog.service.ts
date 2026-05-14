@@ -28,17 +28,11 @@ export class BlogService {
     private async generateUniqueSlug(title: string): Promise<string> {
         let slug = this.generateSlug(title);
         let counter = 1;
-        let originalSlug = slug;
+        const originalSlug = slug;
 
         while (true) {
-            const existingBlog = await prisma.blog.findUnique({
-                where: { slug },
-            });
-
-            if (!existingBlog) {
-                break;
-            }
-
+            const existingBlog = await prisma.blog.findUnique({ where: { slug } });
+            if (!existingBlog) break;
             slug = `${originalSlug}-${counter}`;
             counter++;
         }
@@ -46,50 +40,59 @@ export class BlogService {
         return slug;
     }
 
+    private async uploadFeaturedImage(file: any, namePrefix: string): Promise<string | undefined> {
+        if (!file) return undefined;
+        const timestamp = Date.now();
+        const customFileName = `${namePrefix}-featured-${timestamp}`;
+        const result = await this.cloudinaryService.uploadImageWithCustomName(file, customFileName);
+        return result.secure_url;
+    }
+
+    private async deleteCloudinaryUrl(url: string | null) {
+        if (!url) return;
+        const publicId = this.cloudinaryService.extractPublicId(url);
+        if (publicId) await this.cloudinaryService.deleteImage(publicId);
+    }
+
     async createBlog(
         createBlogDto: CreateBlogDto,
         authorId: number,
-        file?: any
+        featuredImageFile?: any,
     ) {
-        const slug = await this.generateUniqueSlug(createBlogDto.title);
-        const imageSlug = this.generateImageSlug(createBlogDto.title);
-
-        if (!file) {
+        // Featured image is required - it's the main blog header image
+        if (!featuredImageFile) {
             throw new BadRequestException('Featured image is required');
         }
 
-        let featuredImageUrl: string;
+        const slug = await this.generateUniqueSlug(createBlogDto.title);
+        const imageSlug = this.generateImageSlug(createBlogDto.title);
+
+        let featuredImageUrl: string | undefined;
 
         try {
-            const timestamp = Date.now();
-            const customFileName = `${imageSlug}-${timestamp}`;
-            const uploadResult = await this.cloudinaryService.uploadImageWithCustomName(file, customFileName);
-            featuredImageUrl = uploadResult.secure_url;
+            featuredImageUrl = await this.uploadFeaturedImage(featuredImageFile, imageSlug);
+            if (!featuredImageUrl) {
+                throw new BadRequestException('Failed to generate featured image URL');
+            }
         } catch (error) {
-            throw new BadRequestException('Failed to upload image');
+            if (featuredImageUrl) await this.deleteCloudinaryUrl(featuredImageUrl);
+            throw new BadRequestException('Failed to upload featured image');
         }
 
-        // Now readingTime is already string, no conversion needed
-        const blogData = {
-            slug,
-            authorId,
-            featuredImage: featuredImageUrl,
-            title: createBlogDto.title,
-            content: createBlogDto.content,
-            category: createBlogDto.category,
-            description: createBlogDto.description,
-            readingTime: createBlogDto.readingTime || '5 min' // Default value if not provided
-        };
-
         const blog = await prisma.blog.create({
-            data: blogData,
+            data: {
+                slug,
+                authorId,
+                featuredImage: featuredImageUrl,
+                title: createBlogDto.title,
+                content: createBlogDto.content,
+                category: createBlogDto.category,
+                description: createBlogDto.description,
+                readingTime: createBlogDto.readingTime || '5 min',
+            },
             include: {
                 author: {
-                    select: {
-                        id: true,
-                        email: true,
-                        fullname: true,
-                    },
+                    select: { id: true, email: true, fullname: true },
                 },
             },
         });
@@ -100,54 +103,49 @@ export class BlogService {
     async updateBlog(
         id: number,
         updateBlogDto: UpdateBlogDto,
-        file?: any
+        featuredImageFile?: any,
     ) {
-        const existingBlog = await prisma.blog.findUnique({
-            where: { id },
-        });
+        const existingBlog = await prisma.blog.findUnique({ where: { id } });
 
         if (!existingBlog) {
             throw new NotFoundException(`Blog with ID ${id} not found`);
         }
 
         let slug = existingBlog.slug;
-        let featuredImageUrl = existingBlog.featuredImage;
-
-        // Generate new slug if title is being updated
         if (updateBlogDto.title && updateBlogDto.title !== existingBlog.title) {
             slug = await this.generateUniqueSlug(updateBlogDto.title);
         }
 
-        // Upload new image if provided
-        if (file) {
-            try {
-                const imageSlug = this.generateImageSlug(updateBlogDto.title || existingBlog.title);
-                const timestamp = Date.now();
-                const customFileName = `${imageSlug}-${timestamp}`;
+        const imageSlug = this.generateImageSlug(updateBlogDto.title || existingBlog.title);
 
-                const uploadResult = await this.cloudinaryService.uploadImageWithCustomName(file, customFileName);
-                featuredImageUrl = uploadResult.secure_url;
+        let featuredImageUrl = existingBlog.featuredImage;
 
-                // Delete old image from Cloudinary
+        try {
+            if (featuredImageFile) {
+                // Delete old featured image if it exists
                 if (existingBlog.featuredImage) {
-                    const oldPublicId = this.cloudinaryService.extractPublicId(existingBlog.featuredImage);
-                    if (oldPublicId) {
-                        await this.cloudinaryService.deleteImage(oldPublicId);
-                    }
+                    await this.deleteCloudinaryUrl(existingBlog.featuredImage);
                 }
-            } catch (error) {
-                console.error("Cloudinary upload error:", error);
-                throw new BadRequestException('Failed to upload image');
+                const uploadedUrl = await this.uploadFeaturedImage(featuredImageFile, imageSlug);
+                if (!uploadedUrl) {
+                    throw new BadRequestException('Failed to generate featured image URL');
+                }
+                featuredImageUrl = uploadedUrl;
             }
+        } catch (error) {
+            console.error('Cloudinary upload error:', error);
+            throw new BadRequestException('Failed to upload featured image');
         }
 
-        // Prepare update data
         const updateData: any = {
             slug,
-            featuredImage: featuredImageUrl,
         };
 
-        // Only add fields that are provided in the DTO
+        // Only update featured image if a new one was provided
+        if (featuredImageFile) {
+            updateData.featuredImage = featuredImageUrl;
+        }
+
         if (updateBlogDto.title !== undefined) updateData.title = updateBlogDto.title;
         if (updateBlogDto.content !== undefined) updateData.content = updateBlogDto.content;
         if (updateBlogDto.category !== undefined) updateData.category = updateBlogDto.category;
@@ -159,11 +157,7 @@ export class BlogService {
             data: updateData,
             include: {
                 author: {
-                    select: {
-                        id: true,
-                        email: true,
-                        fullname: true,
-                    },
+                    select: { id: true, email: true, fullname: true },
                 },
             },
         });
@@ -171,48 +165,32 @@ export class BlogService {
         return updatedBlog;
     }
 
-    // ... rest of the methods remain the same
     async deleteBlog(id: number) {
-        const existingBlog = await prisma.blog.findUnique({
-            where: { id },
-        });
+        const existingBlog = await prisma.blog.findUnique({ where: { id } });
 
         if (!existingBlog) {
             throw new NotFoundException(`Blog with ID ${id} not found`);
         }
 
-        // Delete image from Cloudinary if exists
+        // Only delete featured image - inline images in content are managed by Cloudinary directly
         if (existingBlog.featuredImage) {
-            const publicId = this.cloudinaryService.extractPublicId(existingBlog.featuredImage);
-            if (publicId) {
-                await this.cloudinaryService.deleteImage(publicId);
-            }
+            await this.deleteCloudinaryUrl(existingBlog.featuredImage);
         }
 
-        await prisma.blog.delete({
-            where: { id },
-        });
+        await prisma.blog.delete({ where: { id } });
 
         return { message: 'Blog deleted successfully' };
     }
 
     async findAllBlogs() {
-        const blogs = await prisma.blog.findMany({
+        return await prisma.blog.findMany({
             include: {
                 author: {
-                    select: {
-                        id: true,
-                        email: true,
-                        fullname: true,
-                    },
+                    select: { id: true, email: true, fullname: true },
                 },
             },
-            orderBy: {
-                createdAt: 'desc',
-            },
+            orderBy: { createdAt: 'desc' },
         });
-
-        return blogs;
     }
 
     async findBlogById(id: number) {
@@ -220,19 +198,12 @@ export class BlogService {
             where: { id },
             include: {
                 author: {
-                    select: {
-                        id: true,
-                        email: true,
-                        fullname: true,
-                    },
+                    select: { id: true, email: true, fullname: true },
                 },
             },
         });
 
-        if (!blog) {
-            throw new NotFoundException(`Blog with ID ${id} not found`);
-        }
-
+        if (!blog) throw new NotFoundException(`Blog with ID ${id} not found`);
         return blog;
     }
 
@@ -241,46 +212,26 @@ export class BlogService {
             where: { slug },
             include: {
                 author: {
-                    select: {
-                        id: true,
-                        email: true,
-                        fullname: true,
-                    },
+                    select: { id: true, email: true, fullname: true },
                 },
             },
         });
 
-        if (!blog) {
-            throw new NotFoundException(`Blog with slug ${slug} not found`);
-        }
-
+        if (!blog) throw new NotFoundException(`Blog with slug ${slug} not found`);
         return blog;
     }
 
     async getBlogsByCategory(category: string) {
-        const normalizedCategory = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
-
-        const blogs = await prisma.blog.findMany({
+        return await prisma.blog.findMany({
             where: {
-                category: {
-                    equals: normalizedCategory,
-                    mode: 'insensitive' // Case-insensitive comparison
-                }
+                category: { equals: category, mode: 'insensitive' },
             },
             include: {
                 author: {
-                    select: {
-                        id: true,
-                        email: true,
-                        fullname: true,
-                    },
+                    select: { id: true, email: true, fullname: true },
                 },
             },
-            orderBy: {
-                createdAt: 'desc',
-            },
+            orderBy: { createdAt: 'desc' },
         });
-
-        return blogs;
     }
 }

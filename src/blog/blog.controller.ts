@@ -20,6 +20,22 @@ import { RoleGuard } from 'src/guards/role.guard';
 import { SetMetadata } from '@nestjs/common';
 import { SuccessMessage } from 'src/decorators/success.decorator';
 
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+function validateImageFile(file: any, fieldName: string) {
+  if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+    throw new BadRequestException(
+      `${fieldName}: Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed.`,
+    );
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    throw new BadRequestException(
+      `${fieldName}: File size too large. Maximum size is 5MB.`,
+    );
+  }
+}
+
 @Controller('blogs')
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
@@ -33,22 +49,13 @@ export class BlogController {
     @Req() req: any,
   ) {
     const authorId = req.user.id;
-    const file = req.files?.featuredImage;
-    
-    // Validate file if provided
-    if (file) {
-      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-      if (!allowedMimeTypes.includes(file.mimetype)) {
-        throw new BadRequestException('Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed.');
-      }
+    const files = req.files ?? {};
 
-      // 5MB limit
-      if (file.size > 5 * 1024 * 1024) {
-        throw new BadRequestException('File size too large. Maximum size is 5MB.');
-      }
-    }
+    // Only featured image is supported for backward compatibility
+    // All other images should be embedded inline in the content using TiptapEditor
+    if (files.featuredImage) validateImageFile(files.featuredImage, 'featuredImage');
 
-    return await this.blogService.createBlog(createBlogDto, authorId, file);
+    return await this.blogService.createBlog(createBlogDto, authorId, files.featuredImage);
   }
 
   @SuccessMessage('Blog updated successfully')
@@ -60,24 +67,14 @@ export class BlogController {
     @Body(ValidationPipe) updateBlogDto: UpdateBlogDto,
     @Req() req: any,
   ) {
-    const file = req.files?.featuredImage;
-    
-    // Validate file if provided
-    if (file) {
-      const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-      if (!allowedMimeTypes.includes(file.mimetype)) {
-        throw new BadRequestException('Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed.');
-      }
+    const files = req.files ?? {};
 
-      if (file.size > 5 * 1024 * 1024) {
-        throw new BadRequestException('File size too large. Maximum size is 5MB.');
-      }
-    }
+    // Only featured image is supported for backward compatibility
+    if (files.featuredImage) validateImageFile(files.featuredImage, 'featuredImage');
 
-    return await this.blogService.updateBlog(id, updateBlogDto, file);
+    return await this.blogService.updateBlog(id, updateBlogDto, files.featuredImage);
   }
 
-  
   @SuccessMessage('Blogs fetched successfully')
   @Get('all')
   async findAllBlogs() {

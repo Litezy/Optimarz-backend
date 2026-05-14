@@ -20,6 +20,7 @@ async function bootstrap() {
       'http://localhost:4173',
       'https://optimarzproperties.com',
       'https://www.optimarzproperties.com',
+      "https://optimarzproperties.com"
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],

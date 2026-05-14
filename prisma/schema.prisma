@@ -25,7 +25,7 @@ model Blog {
   id            Int      @id @default(autoincrement())
   title         String
   content       String   @db.Text
-  featuredImage String?
+  featuredImage String
   slug          String   @unique
   category      String
   readingTime   String

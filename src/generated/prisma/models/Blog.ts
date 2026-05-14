@@ -223,7 +223,7 @@ export type BlogGroupByOutputType = {
   id: number
   title: string
   content: string
-  featuredImage: string | null
+  featuredImage: string
   slug: string
   category: string
   readingTime: string
@@ -260,7 +260,7 @@ export type BlogWhereInput = {
   id?: Prisma.IntFilter<"Blog"> | number
   title?: Prisma.StringFilter<"Blog"> | string
   content?: Prisma.StringFilter<"Blog"> | string
-  featuredImage?: Prisma.StringNullableFilter<"Blog"> | string | null
+  featuredImage?: Prisma.StringFilter<"Blog"> | string
   slug?: Prisma.StringFilter<"Blog"> | string
   category?: Prisma.StringFilter<"Blog"> | string
   readingTime?: Prisma.StringFilter<"Blog"> | string
@@ -275,7 +275,7 @@ export type BlogOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
-  featuredImage?: Prisma.SortOrderInput | Prisma.SortOrder
+  featuredImage?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   category?: Prisma.SortOrder
   readingTime?: Prisma.SortOrder
@@ -294,7 +294,7 @@ export type BlogWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.BlogWhereInput | Prisma.BlogWhereInput[]
   title?: Prisma.StringFilter<"Blog"> | string
   content?: Prisma.StringFilter<"Blog"> | string
-  featuredImage?: Prisma.StringNullableFilter<"Blog"> | string | null
+  featuredImage?: Prisma.StringFilter<"Blog"> | string
   category?: Prisma.StringFilter<"Blog"> | string
   readingTime?: Prisma.StringFilter<"Blog"> | string
   description?: Prisma.StringFilter<"Blog"> | string
@@ -308,7 +308,7 @@ export type BlogOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   title?: Prisma.SortOrder
   content?: Prisma.SortOrder
-  featuredImage?: Prisma.SortOrderInput | Prisma.SortOrder
+  featuredImage?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   category?: Prisma.SortOrder
   readingTime?: Prisma.SortOrder
@@ -330,7 +330,7 @@ export type BlogScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"Blog"> | number
   title?: Prisma.StringWithAggregatesFilter<"Blog"> | string
   content?: Prisma.StringWithAggregatesFilter<"Blog"> | string
-  featuredImage?: Prisma.StringNullableWithAggregatesFilter<"Blog"> | string | null
+  featuredImage?: Prisma.StringWithAggregatesFilter<"Blog"> | string
   slug?: Prisma.StringWithAggregatesFilter<"Blog"> | string
   category?: Prisma.StringWithAggregatesFilter<"Blog"> | string
   readingTime?: Prisma.StringWithAggregatesFilter<"Blog"> | string
@@ -343,7 +343,7 @@ export type BlogScalarWhereWithAggregatesInput = {
 export type BlogCreateInput = {
   title: string
   content: string
-  featuredImage?: string | null
+  featuredImage: string
   slug: string
   category: string
   readingTime: string
@@ -357,7 +357,7 @@ export type BlogUncheckedCreateInput = {
   id?: number
   title: string
   content: string
-  featuredImage?: string | null
+  featuredImage: string
   slug: string
   category: string
   readingTime: string
@@ -370,7 +370,7 @@ export type BlogUncheckedCreateInput = {
 export type BlogUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
-  featuredImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredImage?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
   readingTime?: Prisma.StringFieldUpdateOperationsInput | string
@@ -384,7 +384,7 @@ export type BlogUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
-  featuredImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredImage?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
   readingTime?: Prisma.StringFieldUpdateOperationsInput | string
@@ -398,7 +398,7 @@ export type BlogCreateManyInput = {
   id?: number
   title: string
   content: string
-  featuredImage?: string | null
+  featuredImage: string
   slug: string
   category: string
   readingTime: string
@@ -411,7 +411,7 @@ export type BlogCreateManyInput = {
 export type BlogUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
-  featuredImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredImage?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
   readingTime?: Prisma.StringFieldUpdateOperationsInput | string
@@ -424,7 +424,7 @@ export type BlogUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
-  featuredImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredImage?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
   readingTime?: Prisma.StringFieldUpdateOperationsInput | string
@@ -538,14 +538,10 @@ export type BlogUncheckedUpdateManyWithoutAuthorNestedInput = {
   deleteMany?: Prisma.BlogScalarWhereInput | Prisma.BlogScalarWhereInput[]
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type BlogCreateWithoutAuthorInput = {
   title: string
   content: string
-  featuredImage?: string | null
+  featuredImage: string
   slug: string
   category: string
   readingTime: string
@@ -558,7 +554,7 @@ export type BlogUncheckedCreateWithoutAuthorInput = {
   id?: number
   title: string
   content: string
-  featuredImage?: string | null
+  featuredImage: string
   slug: string
   category: string
   readingTime: string
@@ -600,7 +596,7 @@ export type BlogScalarWhereInput = {
   id?: Prisma.IntFilter<"Blog"> | number
   title?: Prisma.StringFilter<"Blog"> | string
   content?: Prisma.StringFilter<"Blog"> | string
-  featuredImage?: Prisma.StringNullableFilter<"Blog"> | string | null
+  featuredImage?: Prisma.StringFilter<"Blog"> | string
   slug?: Prisma.StringFilter<"Blog"> | string
   category?: Prisma.StringFilter<"Blog"> | string
   readingTime?: Prisma.StringFilter<"Blog"> | string
@@ -614,7 +610,7 @@ export type BlogCreateManyAuthorInput = {
   id?: number
   title: string
   content: string
-  featuredImage?: string | null
+  featuredImage: string
   slug: string
   category: string
   readingTime: string
@@ -626,7 +622,7 @@ export type BlogCreateManyAuthorInput = {
 export type BlogUpdateWithoutAuthorInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
-  featuredImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredImage?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
   readingTime?: Prisma.StringFieldUpdateOperationsInput | string
@@ -639,7 +635,7 @@ export type BlogUncheckedUpdateWithoutAuthorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
-  featuredImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredImage?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
   readingTime?: Prisma.StringFieldUpdateOperationsInput | string
@@ -652,7 +648,7 @@ export type BlogUncheckedUpdateManyWithoutAuthorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   title?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
-  featuredImage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featuredImage?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
   readingTime?: Prisma.StringFieldUpdateOperationsInput | string
@@ -742,7 +738,7 @@ export type $BlogPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     id: number
     title: string
     content: string
-    featuredImage: string | null
+    featuredImage: string
     slug: string
     category: string
     readingTime: string
