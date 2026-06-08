@@ -54,7 +54,15 @@ async function bootstrap() {
       max: 300,
       standardHeaders: true,
       legacyHeaders: false,
-      validate: { trustProxy: false },
+      // Explicitly read the real client IP from X-Forwarded-For (set by the proxy).
+      // Without this, all requests key to the proxy IP (127.0.0.1) and share one bucket.
+      keyGenerator: (req) => {
+        const forwarded = req.headers['x-forwarded-for'];
+        const ip = Array.isArray(forwarded)
+          ? forwarded[0]
+          : forwarded?.split(',')[0]?.trim();
+        return ip || req.ip || req.socket.remoteAddress || 'unknown';
+      },
     }),
   );
 
