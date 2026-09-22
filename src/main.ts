@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import fileUpload from 'express-fileupload';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
@@ -61,7 +61,7 @@ async function bootstrap() {
         const ip = Array.isArray(forwarded)
           ? forwarded[0]
           : forwarded?.split(',')[0]?.trim();
-        return ip || req.ip || req.socket.remoteAddress || 'unknown';
+        return ipKeyGenerator(ip || req.ip || req.socket.remoteAddress || 'unknown');
       },
     }),
   );
