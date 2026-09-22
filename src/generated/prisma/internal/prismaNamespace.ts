@@ -388,7 +388,8 @@ export const ModelName = {
   Blog: 'Blog',
   ContactMessage: 'ContactMessage',
   Waitlist: 'Waitlist',
-  Downloads: 'Downloads'
+  Downloads: 'Downloads',
+  SiteVisit: 'SiteVisit'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -404,7 +405,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "admin" | "blog" | "contactMessage" | "waitlist" | "downloads"
+    modelProps: "admin" | "blog" | "contactMessage" | "waitlist" | "downloads" | "siteVisit"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -778,6 +779,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SiteVisit: {
+      payload: Prisma.$SiteVisitPayload<ExtArgs>
+      fields: Prisma.SiteVisitFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SiteVisitFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteVisitPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SiteVisitFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteVisitPayload>
+        }
+        findFirst: {
+          args: Prisma.SiteVisitFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteVisitPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SiteVisitFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteVisitPayload>
+        }
+        findMany: {
+          args: Prisma.SiteVisitFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteVisitPayload>[]
+        }
+        create: {
+          args: Prisma.SiteVisitCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteVisitPayload>
+        }
+        createMany: {
+          args: Prisma.SiteVisitCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SiteVisitCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteVisitPayload>[]
+        }
+        delete: {
+          args: Prisma.SiteVisitDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteVisitPayload>
+        }
+        update: {
+          args: Prisma.SiteVisitUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteVisitPayload>
+        }
+        deleteMany: {
+          args: Prisma.SiteVisitDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SiteVisitUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SiteVisitUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteVisitPayload>[]
+        }
+        upsert: {
+          args: Prisma.SiteVisitUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteVisitPayload>
+        }
+        aggregate: {
+          args: Prisma.SiteVisitAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSiteVisit>
+        }
+        groupBy: {
+          args: Prisma.SiteVisitGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteVisitGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SiteVisitCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteVisitCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -882,6 +957,17 @@ export const DownloadsScalarFieldEnum = {
 export type DownloadsScalarFieldEnum = (typeof DownloadsScalarFieldEnum)[keyof typeof DownloadsScalarFieldEnum]
 
 
+export const SiteVisitScalarFieldEnum = {
+  id: 'id',
+  visitorHash: 'visitorHash',
+  path: 'path',
+  visitDate: 'visitDate',
+  createdAt: 'createdAt'
+} as const
+
+export type SiteVisitScalarFieldEnum = (typeof SiteVisitScalarFieldEnum)[keyof typeof SiteVisitScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -896,6 +982,14 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 
@@ -1043,6 +1137,7 @@ export type GlobalOmitConfig = {
   contactMessage?: Prisma.ContactMessageOmit
   waitlist?: Prisma.WaitlistOmit
   downloads?: Prisma.DownloadsOmit
+  siteVisit?: Prisma.SiteVisitOmit
 }
 
 /* Types for Logging */

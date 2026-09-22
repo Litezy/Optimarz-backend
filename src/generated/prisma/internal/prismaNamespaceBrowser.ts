@@ -55,7 +55,8 @@ export const ModelName = {
   Blog: 'Blog',
   ContactMessage: 'ContactMessage',
   Waitlist: 'Waitlist',
-  Downloads: 'Downloads'
+  Downloads: 'Downloads',
+  SiteVisit: 'SiteVisit'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -139,6 +140,17 @@ export const DownloadsScalarFieldEnum = {
 export type DownloadsScalarFieldEnum = (typeof DownloadsScalarFieldEnum)[keyof typeof DownloadsScalarFieldEnum]
 
 
+export const SiteVisitScalarFieldEnum = {
+  id: 'id',
+  visitorHash: 'visitorHash',
+  path: 'path',
+  visitDate: 'visitDate',
+  createdAt: 'createdAt'
+} as const
+
+export type SiteVisitScalarFieldEnum = (typeof SiteVisitScalarFieldEnum)[keyof typeof SiteVisitScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -153,4 +165,12 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

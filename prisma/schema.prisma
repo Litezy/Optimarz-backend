@@ -56,8 +56,19 @@ model Waitlist {
 
 model Downloads {
   id        Int      @id @default(autoincrement())
-  email     String  
+  email     String
   firstName String
   lastName  String
   createdAt DateTime @default(now())
+}
+
+model SiteVisit {
+  id          Int      @id @default(autoincrement())
+  visitorHash String
+  path        String?
+  visitDate   DateTime @db.Date
+  createdAt   DateTime @default(now())
+
+  @@unique([visitorHash, visitDate])
+  @@index([visitDate])
 }

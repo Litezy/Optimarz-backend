@@ -62,3 +62,8 @@ export type Waitlist = Prisma.WaitlistModel
  * 
  */
 export type Downloads = Prisma.DownloadsModel
+/**
+ * Model SiteVisit
+ * 
+ */
+export type SiteVisit = Prisma.SiteVisitModel

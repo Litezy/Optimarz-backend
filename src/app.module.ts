@@ -11,9 +11,10 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { BlogModule } from './blog/blog.module';
 import { DownloadsModule } from './downloads/downloads.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
-  imports: [AdminModule, ContactModule, WaitlistModule, DatabaseModule, BlogModule, DownloadsModule,DownloadsModule],
+  imports: [AdminModule, ContactModule, WaitlistModule, DatabaseModule, BlogModule, DownloadsModule, AnalyticsModule],
   controllers: [AppController],
   providers: [
     {
