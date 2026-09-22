@@ -29,4 +29,4 @@ jobs:
             npx prisma generate
             npx prisma migrate deploy
             npm run build
-            pm2 restart ${{ secrets.PM2_APP_NAME }} --update-env
+            su - deploy -c "pm2 restart ${{ secrets.PM2_APP_NAME }} --update-env"
