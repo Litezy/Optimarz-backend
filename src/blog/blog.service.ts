@@ -76,7 +76,9 @@ export class BlogService {
             }
         } catch (error) {
             if (featuredImageUrl) await this.deleteCloudinaryUrl(featuredImageUrl);
-            throw new BadRequestException('Failed to upload featured image');
+            const message = (error as any)?.message;
+            console.error('Featured image upload error:', message || error);
+            throw new BadRequestException(`Failed to upload featured image: ${message || 'Unknown error'}`);
         }
 
         const blog = await prisma.blog.create({

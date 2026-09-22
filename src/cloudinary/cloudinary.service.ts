@@ -59,10 +59,8 @@ export class CloudinaryService {
         {
           resource_type: 'image',
           folder: this.projectFolder,
-          public_id: customName, // Custom filename
-          format: 'webp',
-          quality: 'auto',
-          overwrite: false, // Don't overwrite existing images with same name
+          public_id: customName,
+          overwrite: false,
         },
         (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
           if (error) {
@@ -130,3 +128,5 @@ export class CloudinaryService {
     }
   }
 }
+
+//addes some changes

@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import rateLimit from 'express-rate-limit';
@@ -7,9 +8,10 @@ import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   //added a comment
 
+  app.set('trust proxy', 1);
   app.use(helmet());
 
   app.enableCors({
@@ -52,7 +54,15 @@ async function bootstrap() {
       max: 300,
       standardHeaders: true,
       legacyHeaders: false,
-      validate: { trustProxy: false },
+      // Explicitly read the real client IP from X-Forwarded-For (set by the proxy).
+      // Without this, all requests key to the proxy IP (127.0.0.1) and share one bucket.
+      keyGenerator: (req) => {
+        const forwarded = req.headers['x-forwarded-for'];
+        const ip = Array.isArray(forwarded)
+          ? forwarded[0]
+          : forwarded?.split(',')[0]?.trim();
+        return ip || req.ip || req.socket.remoteAddress || 'unknown';
+      },
     }),
   );
 
